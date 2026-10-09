@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>石中心灵驿站 · AI树洞</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#f4f6fb;color:#1f2937;line-height:1.65}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 18px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid #e8ecf5;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{font-size:26px;line-height:1}
+.brand-text strong{display:block;font-size:16px;letter-spacing:.3px}
+.brand-text small{color:#8b95a8;font-size:12px}
+.nav{display:flex;gap:4px;background:#eef1f8;padding:4px;border-radius:11px}
+.nav-btn{border:0;background:transparent;padding:7px 14px;border-radius:8px;font-size:14px;color:#5b657a;cursor:pointer;font-family:inherit;transition:.15s}
+.nav-btn.active{background:#fff;color:#4f46e5;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+main{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+.card{background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 2px 14px rgba(31,41,55,.05);border:1px solid #eef1f8;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:18px}
+.intro h2{margin:0 0 8px;font-size:19px}
+.intro p{margin:0 0 10px;color:#4b5563}
+.tips{margin:0;padding-left:20px;color:#6b7280;font-size:14px}
+.tips li{margin:5px 0}
+.chat{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg.me{flex-direction:row-reverse}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;flex:0 0 auto;background:#eef1f8}
+.msg.ai .avatar{background:linear-gradient(135deg,#7c6cf0,#38bdf8);color:#fff}
+.bubble{max-width:78%;padding:11px 15px;border-radius:15px;font-size:15px;white-space:pre-wrap;word-break:break-word}
+.msg.ai .bubble{background:#f3f5fb;border-top-left-radius:4px}
+.msg.me .bubble{background:linear-gradient(135deg,#6366f1,#7c6cf0);color:#fff;border-top-right-radius:4px;box-shadow:0 2px 8px rgba(99,102,241,.25)}
+.typing{display:inline-flex;gap:4px;padding:5px 2px}
+.typing i{width:6px;height:6px;border-radius:50%;background:#a5aec2;animation:bl 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}
+.typing i:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.composer{padding:14px}
+.moods{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.mood-chip{border:1px solid #e2e8f0;background:#fff;color:#5b657a;padding:5px 13px;border-radius:999px;font-size:13px;cursor:pointer;font-family:inherit;transition:.15s}
+.mood-chip.active{background:#eef2ff;border-color:#a5b4fc;color:#4f46e5;font-weight:600}
+textarea{width:100%;border:1.5px solid #e5e9f2;border-radius:12px;padding:11px 13px;font-size:15px;font-family:inherit;resize:vertical;outline:none;background:#fbfcfe;transition:.15s}
+textarea:focus{border-color:#a5b4fc;background:#fff}
+.composer-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:10px}
+.hint{font-size:12px;color:#9aa3b5}
+.btn{border:1px solid #e2e8f0;background:#fff;color:#374151;padding:9px 16px;border-radius:10px;font-size:14px;cursor:pointer;font-family:inherit;transition:.15s}
+.btn:hover{background:#f7f8fc}
+.btn.primary{background:linear-gradient(135deg,#6366f1,#7c6cf0);color:#fff;border:0;font-weight:600;box-shadow:0 3px 10px rgba(99,102,241,.28)}
+.btn.primary:hover{opacity:.93}
+.btn.danger{color:#dc2626;border-color:#fecaca}
+.btn.ghost{color:#6b7280}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.stat-row{display:flex;gap:10px;margin-bottom:14px}
+.stat{flex:1;text-align:center;background:#f7f9fd;border-radius:12px;padding:12px 6px}
+.stat b{display:block;font-size:22px;color:#4f46e5;line-height:1.3}
+.stat.danger b{color:#dc2626}
+.stat span{font-size:12px;color:#8b95a8}
+.rec{background:#fff;border:1px solid #eef1f8;border-left:4px solid #a5b4fc;border-radius:12px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(31,41,55,.04)}
+.rec.risk{border-left-color:#ef4444;background:#fffafa}
+.rec-head{display:flex;justify-content:space-between;font-size:12px;color:#8b95a8;margin-bottom:9px;gap:10px;flex-wrap:wrap}
+.rec-q{font-weight:600;margin-bottom:7px;white-space:pre-wrap}
+.rec-a{color:#4b5563;font-size:14px;white-space:pre-wrap}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#4f46e5;margin-right:5px}
+.tag.risk{background:#fee2e2;color:#dc2626;font-weight:600}
+label{display:block;font-size:13px;color:#5b657a;margin:14px 0 6px;font-weight:600}
+input,select{width:100%;padding:10px 12px;border:1.5px solid #e5e9f2;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#fbfcfe;transition:.15s}
+input:focus,select:focus{border-color:#a5b4fc;background:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.muted{color:#8b95a8}
+.small{font-size:12.5px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:rgba(31,41,55,.93);color:#fff;padding:10px 20px;border-radius:999px;font-size:14px;z-index:99;opacity:0;pointer-events:none;transition:opacity .3s}
+.toast.show{opacity:1}
+@media(max-width:520px){
+  .nav-btn{padding:6px 11px;font-size:13px}
+  .brand-text small{display:none}
+  .bubble{max-width:82%}
+  main{padding:14px 12px 50px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">🌳</span>
+    <div class="brand-text">
+      <strong>石中心灵驿站</strong>
+      <small>心声有AI · 温暖润心田</small>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" data-view="student">树洞</button>
+    <button class="nav-btn" data-view="teacher">教师端</button>
+    <button class="nav-btn" data-view="setting">设置</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ 学生端 ============ -->
+  <section id="view-student" class="view">
+    <div class="card intro">
+      <h2>你好，我是小灵 🌱</h2>
+      <p>一个可以听你说说心里话的 AI 伙伴。这里绝对安全，你说的话只有我知道。</p>
+      <ul class="tips">
+        <li>完全匿名，不用填姓名、班级、手机号</li>
+        <li>开心的、难过的、说不出口的，都可以说</li>
+        <li>如果情况紧急，请一定告诉身边的老师，或拨打心理援助热线 <b>12356</b></li>
+      </ul>
+    </div>
+
+    <div id="chat" class="chat"></div>
+
+    <div class="card composer">
+      <div class="moods" id="moods"></div>
+      <textarea id="input" rows="3" placeholder="想说点什么？慢慢写，我在这儿听着…"></textarea>
+      <div class="composer-foot">
+        <span class="hint">匿名 · 不收集你的身份信息</span>
+        <button class="btn primary" id="sendBtn">发送</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 教师端 ============ -->
+  <section id="view-teacher" class="view" hidden>
+    <div class="card" id="teacherLock">
+      <h2>教师巡检入口</h2>
+      <p class="muted small">请输入巡检密码，查看匿名化处理的对话摘要。</p>
+      <label>巡检密码</label>
+      <input type="password" id="pwdInput" placeholder="请输入密码">
+      <div class="row">
+        <button class="btn primary" id="pwdBtn">进入</button>
+      </div>
+      <p class="muted small" style="margin-top:10px">默认密码：<b>shizhong</b>（可在「设置」中修改）</p>
+    </div>
+
+    <div id="teacherPanel" hidden>
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><b id="statTotal">0</b><span>累计倾诉</span></div>
+          <div class="stat"><b id="statToday">0</b><span>今日</span></div>
+          <div class="stat danger"><b id="statRisk">0</b><span>需关注</span></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="filterAll">全部记录</button>
+          <button class="btn" id="filterRisk">仅看预警</button>
+          <button class="btn" id="exportBtn">导出记录</button>
+          <button class="btn ghost" id="logoutBtn">退出</button>
+        </div>
+      </div>
+      <div id="recordList"></div>
+    </div>
+  </section>
+
+  <!-- ============ 设置 ============ -->
+  <section id="view-setting" class="view" hidden>
+    <div class="card">
+      <h2>AI 接口设置</h2>
+      <p class="muted small">不填 API Key 也能用「离线演示模式」，但回复是预置话术，不是真正的 AI。填写后即可接入真实大模型。</p>
+
+      <label>服务商</label>
+      <select id="providerSel"></select>
+
+      <label>接口地址 Base URL</label>
+      <input id="baseURL" placeholder="https://api.deepseek.com/v1">
+
+      <label>模型名称</label>
+      <input id="model" placeholder="deepseek-chat">
+
+      <label>API Key</label>
+      <input id="apiKey" type="password" placeholder="sk-...">
+
+      <label>预警推送 Webhook（可选）</label>
+      <input id="webhook" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/...">
+      <p class="muted small" style="margin:6px 0 0">检测到高风险内容时，会尝试向该地址推送一条匿名提醒（支持飞书/钉钉群机器人）。部分地址可能因浏览器限制发送失败。</p>
+
+      <label>教师端巡检密码</label>
+      <input id="pwdSet" placeholder="shizhong">
+
+      <div class="row">
+        <button class="btn primary" id="saveCfg">保存设置</button>
+        <button class="btn" id="testCfg">测试连接</button>
+        <button class="btn danger" id="clearRec">清空所有记录</button>
+      </div>
+      <div id="testResult" class="muted small" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <h2>使用说明</h2>
+      <p class="muted small">
+        <b>1. 离线演示模式</b>：无需任何配置，打开即可对话，回复来自内置的共情话术库，适合课堂演示与流程验证。<br>
+        <b>2. 在线 AI 模式</b>：在「服务商」中选择 DeepSeek / 智谱 / SiliconFlow 等，填入自己的 API Key 即可调用真实大模型。<br>
+        <b>3. 数据存储</b>：本页面为纯前端单文件，所有对话记录保存在<b>当前浏览器本地</b>。学生用自己手机填写时，老师无法看到——如需跨设备巡检，请参考配套说明配置后端或云端表单。<br>
+        <b>4. 隐私保护</b>：不收集任何姓名、班级、手机号等身份信息。
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 常量与配置 ================= */
+const REC_KEY = 'sz_records_v1';
+const CFG_KEY = 'sz_config_v1';
+const PWD_KEY = 'sz_pwd_v1';
+const DEFAULT_PWD = 'shizhong';
+
+const PROVIDERS = {
+  offline:     { name: '离线演示模式（无需配置）', baseURL: '', model: '' },
+  deepseek:    { name: 'DeepSeek',                baseURL: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+  zhipu:       { name: '智谱 GLM',                baseURL: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4-flash' },
+  siliconflow: { name: 'SiliconFlow（含免费模型）', baseURL: 'https://api.siliconflow.cn/v1', model: 'Qwen/Qwen2.5-7B-Instruct' },
+  openai:      { name: 'OpenAI',                  baseURL: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+  custom:      { name: '自定义接口',              baseURL: '', model: '' }
+};
+
+const MOODS = ['学业压力','人际关系','家庭沟通','情绪困扰','青春情感','说不清'];
+
+const SYSTEM_PROMPT = `你是"小灵"，乡镇高中"石中心灵驿站"AI树洞里的倾听伙伴。你的服务对象是 15-18 岁的高中生。
+
+请遵守以下原则：
+1. 用平等、温和、口语化的口吻，像一位可靠的大哥哥/大姐姐，不说教、不居高临下，不用"你应该""你必须"。
+2. 先接住情绪，再谈别的。先共情（我听到你说…，这确实很难），不要急着讲道理或给结论。
+3. 回应里可以自然地带入高中生活场景：晚自习、月考、体育课、食堂、宿舍、周末回家等。
+4. 每次回复控制在 200-350 字，分段清晰，不要长篇大论。
+5. 可以给出 1-2 个简单、马上能做到的小方法（深呼吸、去操场走一圈、把烦恼写在纸上、找人聊两句）。
+6. 不做心理诊断，不下结论，不给药物建议，不做道德评判。
+7. 如果对方提到自伤、自杀、被欺凌、严重抑郁等危机信号：先认真表达关心与重视，明确告诉TA"你的感受很重要，你值得被帮助"，鼓励TA立刻告诉信任的老师、班主任或家人，并提供心理援助热线（全国心理援助热线 12356，24 小时）。
+8. 绝不追问姓名、班级、电话、住址等身份信息，保护匿名。
+9. 不承诺"永远保密"这类无法兑现的话，可以说"我会认真听你说"。
+10. 如果对方只是打招呼或测试，友善回应，不要过度解读。`;
+
+const RISK_WORDS = ['自杀','不想活','活着没意思','活着没意义','想死','死了算了','结束生命','轻生','跳楼','跳河','安眠药','了结自己','自残','割腕','划手','伤害自己','被欺凌','被霸凌','打我','被打','被孤立','没人需要我','消失掉'];
+
+/* ================= 工具函数 ================= */
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function fmtTime(iso){
+  const d = new Date(iso), p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function isToday(iso){
+  const d = new Date(iso), n = new Date();
+  return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+}
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function scrollBottom(){
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+/* ================= 本地存储 ================= */
+function getCfg(){
+  const def = { provider:'offline', baseURL:'', model:'', key:'', webhook:'' };
+  try { return Object.assign(def, JSON.parse(localStorage.getItem(CFG_KEY) || '{}')); }
+  catch(e){ return def; }
+}
+function setCfg(c){ localStorage.setItem(CFG_KEY, JSON.stringify(c)); }
+function getRecords(){
+  try { return JSON.parse(localStorage.getItem(REC_KEY) || '[]'); } catch(e){ return []; }
+}
+function addRecord(rec){
+  const list = getRecords();
+  list.push(rec);
+  if(list.length > 1000) list.splice(0, list.length - 1000);
+  localStorage.setItem(REC_KEY, JSON.stringify(list));
+}
+function isRisk(text){
+  return RISK_WORDS.some(w => text.includes(w));
+}
+
+/* ================= 离线话术库 ================= */
+const OFFLINE_RULES = [
+  { k: ['自杀','不想活','活着没意思','活着没意义','想死','死了算了','结束生命','轻生','跳楼','跳河','安眠药','了结自己','消失掉'],
+    r: '谢谢你愿意把这些说出来，我知道这需要很大的勇气。\n\n你现在的痛苦是真实的，也一定很难熬。但请你先答应我一件事：不要一个人扛着。现在就去找到一位你信任的人——班主任、心理老师、家人，哪怕只是坐在他旁边，把刚才对我说的话再说一遍。\n\n如果此刻身边没有人，请打这个电话，24 小时都有人接：\n· 全国心理援助热线：12356\n· 希望24热线：400-161-9995\n\n你不是麻烦，也不是负担。你值得被好好对待，也值得有人陪你把这段路走完。' },
+
+  { k: ['自残','割腕','划手','划胳膊','伤害自己'],
+    r: '我看到你说的了，也谢谢你没有把它藏起来。\n\n当心里太满、太疼的时候，身体上的痛有时候会让人觉得"好受一点"——我理解那种感觉，但那不是你的错，只是你还没找到别的出口。\n\n能不能先试试这些：\n· 用红笔在手腕上画几道，代替真的划下去\n· 把手放进冷水里，或者用力握一块冰\n· 立刻去操场跑两圈，把力气用掉\n\n然后，请一定告诉一位你信任的老师。这不是"告状"，是给自己找一个帮手。\n\n如果难受得撑不住，随时打 12356，24 小时都有人接。' },
+
+  { k: ['欺凌','霸凌','打我','被打','被欺负','被孤立','排挤','嘲笑','起外号','针对我'],
+    r: '被人这样对待，真的很难受，也很委屈。这不是你的错——被欺负的人从来都没有错。\n\n先跟你说几件重要的事：\n· 你不需要"忍一忍就过去了"，也不需要靠自己一个人解决\n· 请把发生的事、时间、地点、有谁，尽量记下来（截图、纸条都行）\n· 找一位你信得过的老师或班主任，把这件事完整地说出来\n\n我知道你可能会担心"说了会更糟"。但憋着，往往才是最消耗人的。\n\n你现在最想先解决的是哪一部分？是被谁欺负，还是不敢开口？可以继续跟我说。' },
+
+  { k: ['考试','成绩','分数','排名','学不进去','考砸','月考','高考','学习','背不下','听不懂'],
+    r: '我听到你说的了。成绩这件事，在高中真的像一块压在胸口的石头，每次考试都像在验证"我到底行不行"。\n\n先跟你说一句：一次考试的结果，说明不了你这个人怎么样。它只能说明这一段时间，某些知识点还没接上。\n\n现在可以试一个很小的动作：\n· 拿出一张纸，写下这次最让你难受的 3 个点\n· 每个点后面，只写"下一步能做什么"，不写"我为什么这么差"\n\n比如"数学函数不会" → "明天问老师一道题"。小到你肯定不会失败的那种。\n\n愿意跟我说说，是哪一门、哪个环节最让你卡住吗？' },
+
+  { k: ['爸妈','父母','家里','吵架','离婚','不理解我','骂我','管太严','偏心','重男轻女'],
+    r: '家里的事，往往是最难跟别人开口的。你能说出来，已经不容易了。\n\n和父母之间的隔阂，很多时候不是谁不爱谁，而是双方都不会好好说话——他们用责骂表达担心，你用沉默表达委屈，然后越走越远。\n\n有几件事你可以试试：\n· 把想说的话写下来，比当面说更容易开口\n· 找一个"中立"的成年人当桥梁：姑姑、舅舅、班主任都行\n· 先不谈对错，只谈感受："你们那样说的时候，我心里很难受"\n\n你现在最想被他们理解的是哪一件事？' },
+
+  { k: ['朋友','同学','舍友','闹矛盾','绝交','没人理','孤独','没朋友','合不来'],
+    r: '人际上的事，看着不大，但那种"被排除在外"的感觉，真的很伤人。\n\n我先陪你把这件事看清楚一点：\n· 有些关系走远了，不是谁的错，只是节奏不一样了\n· 有些矛盾，其实是一句"我那天有点难过"就能解开的\n\n如果还想挽回，可以试着主动说一句话，不用长篇大论，一句就够。如果确实合不来，那也没关系——高中三年，你不需要和所有人都好。\n\n跟我讲讲，是发生了什么？' },
+
+  { k: ['喜欢','暗恋','恋爱','表白','分手','早恋','心动'],
+    r: '青春里喜欢上一个人，是很自然的事，不用觉得羞耻，也不用急着否定自己。\n\n只是这份心情有时候会变成很重的负担：怕被拒绝、怕被议论、怕影响学习。\n\n可以这样想一想：\n· 你现在最担心的是什么？是对方的回应，还是别人的眼光？\n· 无论结果如何，你依然是完整的、值得被喜欢的一个人\n\n如果愿意，跟我说说具体发生了什么，我陪你理一理。' },
+
+  { k: ['睡不着','失眠','睡不好','熬夜','做噩梦'],
+    r: '睡不好的时候，白天整个人都是飘的，这种感觉我懂。\n\n今晚可以试这几个小办法：\n· 睡前一小时把手机放到床以外的地方\n· 躺在床上做 4-7-8 呼吸：吸气4秒、屏住7秒、呼气8秒，做五轮\n· 如果脑子停不下来，就拿纸把想法全写下来，写完合上本子\n\n如果这种情况已经持续两周以上，建议跟心理老师或家长说一声，别硬扛。\n\n是最近有什么事让你睡不好吗？' },
+
+  { k: ['累','压抑','难过','想哭','崩溃','emo','焦虑','烦','郁闷','不开心','没意思','空虚','压力大'],
+    r: '我听到了。那种"说不上具体哪里不对，但就是很累"的感觉，其实是最消耗人的。\n\n你不需要马上好起来，也不用逼自己"振作一点"。先允许自己现在是这个状态。\n\n这会儿可以试一件很小的事：\n· 站起来，走到窗边，深呼吸 5 次\n· 或者去接一杯温水，慢慢喝完\n\n身体先动起来，情绪常常会跟着松一点。\n\n愿意跟我多说说吗？最近是发生了什么，还是慢慢攒起来的？' }
+];
+
+const OFFLINE_DEFAULT = [
+  '嗯，我在听。\n\n谢谢你愿意把这些说出来——很多时候，把心里的话讲出来，本身就已经是一种释放了。\n\n你可以慢慢说，不用组织得很完整。想从哪里开始都可以：是今天发生了什么，还是憋了很久的一件事？',
+  '我听到了。\n\n你现在愿意来这里说说话，本身就说明你在认真地对待自己，这很不容易。\n\n能再多说一点吗？比如这件事是什么时候开始的，最让你难受的是哪一部分？'
+];
+
+function pickOffline(text){
+  for(const rule of OFFLINE_RULES){
+    if(rule.k.some(w => text.includes(w))) return rule.r;
+  }
+  return OFFLINE_DEFAULT[Math.floor(Math.random() * OFFLINE_DEFAULT.length)];
+}
+
+async function typeOut(str, onDelta){
+  const chunks = str.match(/[\s\S]{1,2}/g) || [];
+  for(const c of chunks){
+    onDelta(c);
+    await sleep(22);
+  }
+  return str;
+}
+
+/* ================= 大模型流式调用 ================= */
+async function streamChat(messages, onDelta){
+  const cfg = getCfg();
+  const url = cfg.baseURL.replace(/\/+$/, '') + '/chat/completions';
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + cfg.key,
+      'Accept': 'text/event-stream'
+    },
+    body: JSON.stringify({ model: cfg.model, stream: true, temperature: 0.85, messages })
+  });
+
+  if(!res.ok){
+    const t = await res.text().catch(() => '');
+    throw new Error('HTTP ' + res.status + ' ' + t.slice(0, 100));
+  }
+
+  const reader = res.body.getReader();
+  const dec = new TextDecoder('utf-8');
+  let buf = '';
+
+  while(true){
+    const { done, value } = await reader.read();
+    if(done) break;
+    buf += dec.decode(value, { stream: true });
+
+    const lines = buf.split('\n');
+    buf = lines.pop();
+
+    for(const raw of lines){
+      const line = raw.trim();
+      if(!line || !line.startsWith('data:')) continue;
+      const data = line.slice(5).trim();
+      if(data === '[DONE]') return;
+      try {
+        const j = JSON.parse(data);
+        const d = (j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content) || '';
+        if(d) onDelta(d);
+      } catch(e){ /* 忽略不完整分片 */ }
+    }
+  }
+}
+
+/* ================= 视图切换 ================= */
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.hidden = true);
+    $('view-' + btn.dataset.view).hidden = false;
+    window.scrollTo({ top: 0 });
+  });
+});
+
+/* ================= 学生端：情绪标签 ================= */
+const moodBox = $('moods');
+MOODS.forEach(m => {
+  const b = document.createElement('button');
+  b.className = 'mood-chip';
+  b.type = 'button';
+  b.dataset.mood = m;
+  b.textContent = m;
+  b.addEventListener('click', () => {
+    const cur = moodBox.querySelector('.active');
+    if(cur === b){ b.classList.remove('active'); return; }
+    if(cur) cur.classList.remove('active');
+    b.classList.add('active');
+  });
+  moodBox.appendChild(b);
+});
+
+/* ================= 学生端：对话 ================= */
+const chatEl = $('chat');
+let history = [];
+let sending = false;
+
+function addBubble(who, text){
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + who;
+
+  const av = document.createElement('div');
+  av.className = 'avatar';
+  av.textContent = who === 'ai' ? '🌱' : '🙂';
+
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  const t = document.createElement('span');
+  t.className = 'text';
+  t.textContent = text;
+  bub.appendChild(t);
+
+  wrap.appendChild(av);
+  wrap.appendChild(bub);
+  chatEl.appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+async function handleSend(){
+  if(sending) return;
+  const input = $('input');
+  const text = input.value.trim();
+  if(!text){ toast('先写点什么吧～'); return; }
+
+  sending = true;
+  const sendBtn = $('sendBtn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = '小灵正在听…';
+
+  const moodEl = moodBox.querySelector('.active');
+  const mood = moodEl ? moodEl.dataset.mood : '';
+
+  addBubble('me', text);
+  input.value = '';
+  history.push({ role: 'user', content: text });
+
+  const aiWrap = addBubble('ai', '');
+  const textEl = aiWrap.querySelector('.text');
+  textEl.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
+
+  let answer = '';
+  let started = false;
+  const onDelta = d => {
+    if(!started){ textEl.textContent = ''; started = true; }
+    answer += d;
+    textEl.textContent = answer;
+    scrollBottom();
+  };
+
+  const cfg = getCfg();
+  let offlineUsed = false;
+
+  try {
+    if(cfg.provider === 'offline' || !cfg.key || !cfg.baseURL){
+      offlineUsed = true;
+      const reply = pickOffline(text);
+      await typeOut(reply, onDelta);
+      answer = reply;
+    } else {
+      const msgs = [{ role:'system', content: SYSTEM_PROMPT }, ...history.slice(-10)];
+      await streamChat(msgs, onDelta);
+      if(!answer) throw new Error('未收到内容');
+    }
+  } catch(err){
+    // 自动降级到离线话术
+    offlineUsed = true;
+    if(!started){ textEl.textContent = ''; }
+    answer = '';
+    const reply = pickOffline(text);
+    await typeOut(reply, onDelta);
+    answer = reply;
+    toast('AI 接口不可用，已切换到离线模式');
+    console.warn('AI 调用失败：', err);
+  }
+
+  history.push({ role: 'assistant', content: answer });
+
+  // 保存匿名记录
+  const risk = isRisk(text);
+  const rec = {
+    id: Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    time: new Date().toISOString(),
+    mood,
+    q: text,
+    a: answer,
+    risk,
+    offline: offlineUsed
+  };
+  addRecord(rec);
+
+  // 高风险 → 推送提醒
+  if(risk && cfg.webhook){
+    pushWebhook(cfg.webhook, text, mood);
+  }
+
+  // 高风险 → 页面提示
+  if(risk){
+    const tip = document.createElement('div');
+    tip.className = 'card';
+    tip.style.borderLeft = '4px solid #ef4444';
+    tip.innerHTML = '<b style="color:#dc2626">⚠ 请照顾好自己</b><p class="small muted" style="margin:6px 0 0">如果你正在经历很难熬的时刻，请一定要告诉身边的老师或家人。全国心理援助热线 <b>12356</b>，24 小时都有人接听。</p>';
+    chatEl.appendChild(tip);
+  }
+
+  sending = false;
+  sendBtn.disabled = false;
+  sendBtn.textContent = '发送';
+  scrollBottom();
+}
+
+function pushWebhook(url, text, mood){
+  const body = {
+    msg_type: 'text',
+    content: {
+      text: '【石中心灵驿站 · 预警】\n时间：' + fmtTime(new Date().toISOString()) +
+            (mood ? '\n标签：' + mood : '') +
+            '\n\n匿名倾诉内容：\n' + text +
+            '\n\n请及时关注并启动人工干预流程。'
+    }
+  };
+  try {
+    fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).catch(() => {});
+  } catch(e){ /* 忽略 */ }
+}
+
+$('sendBtn').addEventListener('click', handleSend);
+$('input').addEventListener('keydown', e => {
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter') handleSend();
+});
+
+/* ================= 教师端 ================= */
+function getPwd(){ return localStorage.getItem(PWD_KEY) || DEFAULT_PWD; }
+
+$('pwdBtn').addEventListener('click', () => {
+  if($('pwdInput').value === getPwd()){
+    $('teacherLock').hidden = true;
+    $('teacherPanel').hidden = false;
+    renderRecords(false);
+  } else {
+    toast('密码不正确');
+  }
+});
+$('pwdInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') $('pwdBtn').click();
+});
+$('logoutBtn').addEventListener('click', () => {
+  $('teacherPanel').hidden = true;
+  $('teacherLock').hidden = false;
+  $('pwdInput').value = '';
+});
+$('filterAll').addEventListener('click', () => renderRecords(false));
+$('filterRisk').addEventListener('click', () => renderRecords(true));
+
+$('exportBtn').addEventListener('click', () => {
+  const recs = getRecords();
+  if(!recs.length){ toast('暂无记录'); return; }
+  const txt = recs.map(r =>
+    '【' + fmtTime(r.time) + '】' +
+    (r.mood ? '[' + r.mood + ']' : '') +
+    (r.risk ? '[⚠需关注]' : '') + '\n' +
+    '学生：' + r.q + '\n' +
+    '小灵：' + r.a + '\n'
+  ).join('\n' + '-'.repeat(42) + '\n');
+
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '石中心灵驿站_匿名对话记录_' + Date.now() + '.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+function renderRecords(onlyRisk){
+  const all = getRecords();
+  $('statTotal').textContent = all.length;
+  $('statToday').textContent = all.filter(r => isToday(r.time)).length;
+  $('statRisk').textContent = all.filter(r => r.risk).length;
+
+  let recs = onlyRisk ? all.filter(r => r.risk) : all;
+  recs = recs.slice().reverse();
+
+  const wrap = $('recordList');
+  if(!recs.length){
+    wrap.innerHTML = '<div class="card muted" style="text-align:center">暂无记录</div>';
+    return;
+  }
+
+  wrap.innerHTML = recs.map(r => {
+    const tags =
+      (r.mood ? '<span class="tag">' + esc(r.mood) + '</span>' : '') +
+      (r.risk ? '<span class="tag risk">⚠ 需关注</span>' : '') +
+      (r.offline ? '<span class="tag">离线</span>' : '');
+    return '<div class="rec' + (r.risk ? ' risk' : '') + '">' +
+             '<div class="rec-head"><span>' + fmtTime(r.time) + '</span><span>' + tags + '</span></div>' +
+             '<div class="rec-q">' + esc(r.q) + '</div>' +
+             '<div class="rec-a">' + esc(r.a) + '</div>' +
+           '</div>';
+  }).join('');
+}
+
+/* ================= 设置页 ================= */
+const providerSel = $('providerSel');
+Object.keys(PROVIDERS).forEach(k => {
+  const o = document.createElement('option');
+  o.value = k;
+  o.textContent = PROVIDERS[k].name;
+  providerSel.appendChild(o);
+});
+
+providerSel.addEventListener('change', () => {
+  const p = PROVIDERS[providerSel.value];
+  if(p && providerSel.value !== 'custom'){
+    $('baseURL').value = p.baseURL;
+    $('model').value = p.model;
+  }
+});
+
+function loadCfgToForm(){
+  const c = getCfg();
+  providerSel.value = c.provider || 'offline';
+  $('baseURL').value = c.baseURL || '';
+  $('model').value = c.model || '';
+  $('apiKey').value = c.key || '';
+  $('webhook').value = c.webhook || '';
+  $('pwdSet').value = getPwd();
+}
+
+$('saveCfg').addEventListener('click', () => {
+  const c = {
+    provider: providerSel.value,
+    baseURL: $('baseURL').value.trim(),
+    model: $('model').value.trim(),
+    key: $('apiKey').value.trim(),
+    webhook: $('webhook').value.trim()
+  };
+  setCfg(c);
+
+  const pwd = $('pwdSet').value.trim();
+  if(pwd) localStorage.setItem(PWD_KEY, pwd);
+
+  toast('设置已保存');
+});
+
+$('testCfg').addEventListener('click', async () => {
+  const out = $('testResult');
+  const c = {
+    provider: providerSel.value,
+    baseURL: $('baseURL').value.trim(),
+    model: $('model').value.trim(),
+    key: $('apiKey').value.trim()
+  };
+  if(c.provider === 'offline'){
+    out.textContent = '当前为离线演示模式，无需连接。';
+    return;
+  }
+  if(!c.key || !c.baseURL || !c.model){
+    out.textContent = '❌ 请先填写 Base URL、模型名称和 API Key。';
+    return;
+  }
+  out.textContent = '正在测试连接…';
+  try {
+    const res = await fetch(c.baseURL.replace(/\/+$/, '') + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + c.key },
+      body: JSON.stringify({ model: c.model, messages: [{ role: 'user', content: '你好' }], max_tokens: 10 })
+    });
+    if(res.ok){
+      out.textContent = '✅ 连接成功！可以开始使用真实 AI 了。';
+    } else {
+      const t = await res.text().catch(() => '');
+      out.textContent = '❌ 失败：HTTP ' + res.status + ' ' + t.slice(0, 120);
+    }
+  } catch(e){
+    out.textContent = '❌ 失败：' + e.message + '（可能是浏览器 CORS 限制或网络问题，可换一个服务商试试，或部署到服务器端转发）';
+  }
+});
+
+$('clearRec').addEventListener('click', () => {
+  if(confirm('确定要清空所有匿名对话记录吗？此操作不可恢复。')){
+    localStorage.removeItem(REC_KEY);
+    renderRecords(false);
+    toast('记录已清空');
+  }
+});
+
+/* ================= 初始化 ================= */
+loadCfgToForm();
+
+// 首次进入的欢迎语
+(function welcome(){
+  const now = new Date();
+  const h = now.getHours();
+  let greet = '你好呀';
+  if(h < 6) greet = '这么晚还没睡呀';
+  else if(h < 11) greet = '早上好';
+  else if(h < 14) greet = '中午好';
+  else if(h < 18) greet = '下午好';
+  else greet = '晚上好';
+
+  addBubble('ai', greet + '，我是小灵 🌱\n\n这里是石中心灵驿站，一个只属于你的树洞。不管今天发生了什么，开心的、烦心的、说不出口的，都可以跟我说说。\n\n你说的每一句话，我都认真听。');
+})();
+</script>
+</body>
+</html>
